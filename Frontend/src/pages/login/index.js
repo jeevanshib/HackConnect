@@ -7,9 +7,8 @@ export default function Login() {
   return (
     <div className="">
       <div className="bg-secondary h-[100vh]">
-        <LoginForm />
-        {/* {visible && <RegisterForm setVisible={setVisible} />} */}
-        <RegisterForm />
+        <LoginForm setVisible={setVisible}/>
+        {visible && <RegisterForm setVisible={setVisible} />}
       </div>
     </div>
   )

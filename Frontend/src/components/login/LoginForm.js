@@ -3,13 +3,20 @@ import {Link} from 'react-router-dom';
 import {useState} from 'react';
 import LoginInput from '../../components/inputs/loginInput';
 import * as Yup from 'yup';
+import HashLoader from "react-spinners/HashLoader";
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import Cookie from 'js-cookie';
+import {useNavigate} from 'react-router-dom';
 
 const loginInfos = {
     email: "",
     password: "",
   }
 
-export default function LoginForm() {
+export default function LoginForm({setVisible}) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
     const[login, setlogin]=useState(loginInfos);
   const {email, password}=login;
   console.log(login);
@@ -26,6 +33,25 @@ export default function LoginForm() {
     .max(50, "Email must be less than 50 characters"),
     password: Yup.string().required("Password is Required"),
   })
+
+  const [error,setError] = useState("");
+  const [loading,setLoading] = useState(false);
+  const loginSubmit = async () => {
+    try {
+      setLoading(true);
+      const {data}=await axios.post(`${process.env.REACT_APP_BACKEND_URL}/login`, {
+        email,
+        password,        
+      });
+      
+        dispatch({type:"LOGIN", payload:data});
+        Cookie.set("user", JSON.stringify(data));
+        navigate("/home");
+    } catch (error) {
+      setLoading(false);
+      setError(error.response.data.message);
+    }
+  }
   return (
     <div className="h-[78vh] text-primary-color md:flex md:items-center md:max-w-[1000px] md:my-0 md:mx-auto md:py-0 md:px-[1rem]">
         <div className="w-[300px] mx-auto my-0 md:flex md:flex-col md:w-[50%] md:mb-[25vh]">
@@ -43,6 +69,9 @@ export default function LoginForm() {
               password,
             }}
             validationSchema={loginValidation}
+            onSubmit={()=>{
+              loginSubmit();
+            }}
             >
               {(formik) => (
                 <Form>
@@ -65,8 +94,9 @@ export default function LoginForm() {
               )}
             </Formik>
             <Link to="/reset" className="text-blue-color cursor-pointer text-[14px] hover:underline">Forgot Password?</Link>
+            {error && <div className="text-[#b94a48]">{error}</div>}
             <div className="w-[100%] h-[1px] bg-third"></div>
-            <button className="important blue-btn w-[70%] h-[50px] text-[17px] font-semibold mt-[1rem] bg-green-color">Create Account</button>
+            <button onClick={()=>setVisible(true)} className="important blue-btn w-[70%] h-[50px] text-[17px] font-semibold mt-[1rem] bg-green-color">Create Account</button>
           </div>
           <Link to="/" className="text-[15px]"><b>Create A Page</b> for a hackathons, codeathons and contests.</Link>
         </div>

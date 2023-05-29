@@ -4,11 +4,19 @@ import {useState} from 'react';
 import * as Yup from 'yup';
 import DateOfBirthSelect from './DateOfBirthSelect';
 import GenderSelect from './GenderSelect';
+import HashLoader from "react-spinners/HashLoader";
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import Cookie from 'js-cookie';
+import {useNavigate} from 'react-router-dom';
 
-export default function RegisterForm() {
+export default function RegisterForm({setVisible}) {
+  const dispatch = useDispatch();
+
+  const navigate = useNavigate();
     const userInfos = {
-        firstName: "",
-        lastName: "",
+        first_name: "",
+        last_name: "",
         email: "",
         password: "",
         bYear: new Date().getFullYear(),
@@ -18,8 +26,8 @@ export default function RegisterForm() {
         };
     const[user, setUser]=useState(userInfos);
     const {
-        firstName,
-        lastName,
+        first_name,
+        last_name,
         email,
         password,
         bYear,
@@ -48,28 +56,60 @@ export default function RegisterForm() {
 
 
     const registerValidation = Yup.object({
-        firstName: Yup.string().required("What's your First Name?").min(2, "First Name must be between 2 and 16 characters").max(16, "First Name must be between 2 and 16 characters").matches(/^[aA-zZ\s]+$/, "Numbers and special Character are not allowed"),
-    lastName: Yup.string().required("What's your Last Name?").min(2, "Last Name must be between 2 and 16 characters").max(16, "Last Name must be between 2 and 16 characters").matches(/^[aA-zZ]+$/, "Numbers and special Character are not allowed"),
+        first_name: Yup.string().required("What's your First Name?").min(2, "First Name must be between 2 and 16 characters").max(16, "First Name must be between 2 and 16 characters").matches(/^[aA-zZ\s]+$/, "Numbers and special Character are not allowed"),
+    last_name: Yup.string().required("What's your Last Name?").min(2, "Last Name must be between 2 and 16 characters").max(16, "Last Name must be between 2 and 16 characters").matches(/^[aA-zZ]+$/, "Numbers and special Character are not allowed"),
     email: Yup.string().required("You will require this when you try to login or when you need to change your password.").email("Enter a valid Email Address."),
     password: Yup.string().required("Password must contain atleast 6 characters, 1 special charater, 1 number, letters").min(6, "Password must be atleast 6 characters").max(36, "Password must be atleast 6 characters"),
   })
 
   const [dateError, setDateError] = useState("");
   const [genderError, setGenderError] = useState("");
+  const [error,setError] = useState("");
+  const [success,setSuccess] = useState("");
+  const [loading,setLoading] = useState(false);
+
+  const registerSubmit=async()=>{
+    try {
+      const {data} = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/register`, {
+        first_name,
+        last_name,
+        email,
+        password,
+        bYear,
+        bMonth,
+        bDay,
+        gender,
+      });
+      setError("");
+      setSuccess(data.message);
+      const{message , ...rest}=data;
+      setTimeout(() => {
+        dispatch({type:"LOGIN", payload:rest});
+        Cookie.set("user", JSON.stringify(rest));
+        navigate("/home");
+
+      }, 2000);
+    } catch (error) {
+      setLoading(false);
+      setSuccess("");
+      setError(error.response.data.message);
+    }
+  }
+
 return (
   <div>
     <div className="bg-blur absolute top-0 left-0 h-[100%] w-[100%]">
     <div className="absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-primary shadow-[0_1px_2px] shadow-shadow-1 rounded-[10px] p-[15px] pb-[1rem] w-[350px] h-fit text-primary-color lg:w-[400px] ">
       <div className="relative flex flex-col gap-[10px] pb-[10px] border-b-[1px] border-b-solid border-b-third">
-        <i className="exit_icon absolute right-0 cursor-pointer"></i>
+        <i className="exit_icon absolute right-0 cursor-pointer" onClick={()=>setVisible(false)}></i>
         <span className="text-[32px] font-bold">Sign Up</span>
         <span className="text-[15px] text-secondary-color">It's quick and easy</span>
       </div>
       <Formik
       enableReinitialize
       initialValues={{
-        firstName,
-        lastName,
+        first_name,
+        last_name,
         email,
         password,
         bYear,
@@ -97,15 +137,17 @@ return (
           }
           else{
             setGenderError("");
+            registerSubmit();
           }
+          
         }}
         >
           {
             (formik) => (
               <Form className="w-[100%] flex flex-col items-center">
                 <div className="reg_line lg:w-[370px]">
-                  <RegisterInput type="text" placeholder="First Name" name="firstName" first onChange={handleRegisterChange} />
-                  <RegisterInput type="text" placeholder="Last Name" name="lastName" last onChange={handleRegisterChange} />
+                  <RegisterInput type="text" placeholder="First Name" name="first_name" first onChange={handleRegisterChange} />
+                  <RegisterInput type="text" placeholder="Last Name" name="last_name" last onChange={handleRegisterChange} />
                 </div>
                 <div className="reg_line">
                   <RegisterInput type="text" placeholder="Mobile Number or Email Address" name="email" email onChange={handleRegisterChange} />
@@ -124,6 +166,9 @@ return (
                 <div className="w-[100%] flex items-center justify-center mt-[20px] mx-0 mb-[10px]">
                   <button className="blue-btn bg-green-color w-[70%] h-[50px] text-[17px] font-bold">Sign Up</button>
                 </div>
+                <HashLoader loading={loading} color="#1C0E7D" size={30} />
+                {error && <div className="text-[#b94a48]">{error}</div>}
+                {success && <div className="text-green-color">{success}</div>}
             </Form>
             )}
         </Formik>
