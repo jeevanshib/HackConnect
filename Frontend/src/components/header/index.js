@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import './style.css';
 import {Friends, Gaming, HomeActive, Logo, Market, Menu, Search, Watch, Messenger, Notifications, ArrowDown} from "../../svg";
 import {useSelector} from "react-redux"; 
+import SearchMenu from './SearchMenu';
 export default function Header() {
   const {user}=useSelector((user)=>({...user}));
 
@@ -19,7 +20,7 @@ export default function Header() {
             <input type="text" placeholder="Search SocioConnect" className="outline-none bg-transparent border-none text-[15px]" />
           </div>
       </div>
-      
+    
       <div className="flex items-center gap-[10px] justify-center header_middle">
         <Link to="/" className="flex items-center justify-center relative w-[125px] h-[50px] cursor-pointer hover:hover1 middle_icon active">
            <HomeActive />
