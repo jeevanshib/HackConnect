@@ -3,10 +3,14 @@ import './style.css';
 import {Friends, Gaming, HomeActive, Logo, Market, Menu, Search, Watch, Messenger, Notifications, ArrowDown} from "../../svg";
 import {useSelector} from "react-redux"; 
 import SearchMenu from './SearchMenu';
+import { useState } from 'react';
+
 export default function Header() {
+  
   const {user}=useSelector((user)=>({...user}));
 
   const color = '#EBF7FF';
+  const [showSearchMenu, setShowSearchMenu] = useState(false);
   return (
     <div className="fixed top-0 h-[56px] w-[100%] bg-primary z-50 shadow-[1px_8px_15px_-7px] shadow-shadow-2 grid grid-cols-3 text-primary-color">
       <div className="flex items-center gap-[10px] py-[5px] px-[1rem]">
@@ -15,12 +19,15 @@ export default function Header() {
               <Logo />
             </div>
           </Link>
-          <div className="flex items-center gap-[8px] bg-forth p-[10px] pr-[20px] rounded-[50px] cursor-text search">
+          <div className="flex items-center gap-[8px] bg-forth p-[10px] pr-[20px] rounded-[50px] cursor-text search" 
+          onClick={()=>{setShowSearchMenu(true)}}>
             <Search color={color} />
-            <input type="text" placeholder="Search SocioConnect" className="outline-none bg-transparent border-none text-[15px]" />
+            <input type="text" placeholder="Search HackConnect" className="outline-none bg-transparent border-none text-[15px]" />
           </div>
       </div>
-    
+      {
+        showSearchMenu && <SearchMenu color={color} setShowSearchMenu={setShowSearchMenu} />
+      }
       <div className="flex items-center gap-[10px] justify-center header_middle">
         <Link to="/" className="flex items-center justify-center relative w-[125px] h-[50px] cursor-pointer hover:hover1 middle_icon active">
            <HomeActive />
