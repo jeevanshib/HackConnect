@@ -7,6 +7,7 @@ import "./index.css";
 import "./styles/icons/icons.css";
 import LoggedInRoutes from "./Routes/LoggedInRoutes";
 import NotLoggedInRoutes from "./Routes/NotLoggedInRoutes";
+import Activate from "./pages/home/activate";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route element={<LoggedInRoutes />}>
         <Route path="/profile" element={<Profile />} exact/>
         <Route path="/" element={<Home />} exact />
+        <Route path="/activate/:token" element={<Activate />} exact />
         </Route>
         <Route element={<NotLoggedInRoutes />}>
         <Route path="/login" element={<Login />} exact />

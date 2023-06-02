@@ -86,7 +86,7 @@ export default function RegisterForm({setVisible}) {
       setTimeout(() => {
         dispatch({type:"LOGIN", payload:rest});
         Cookie.set("user", JSON.stringify(rest));
-        navigate("/home");
+        navigate("/");
 
       }, 2000);
     } catch (error) {
