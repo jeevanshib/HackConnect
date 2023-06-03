@@ -8,6 +8,7 @@ import "./styles/icons/icons.css";
 import LoggedInRoutes from "./Routes/LoggedInRoutes";
 import NotLoggedInRoutes from "./Routes/NotLoggedInRoutes";
 import Activate from "./pages/home/activate";
+import Reset from "./pages/reset";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         <Route element={<NotLoggedInRoutes />}>
         <Route path="/login" element={<Login />} exact />
         </Route>
-        
+        <Route path="/reset" element={<Reset />} exact/>
         
         
       </Routes>
