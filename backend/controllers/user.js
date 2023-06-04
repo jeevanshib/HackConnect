@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { generateToken } = require( "../helpers/tokens" );
 const { sendVerificationEmail, sendResetCode } = require( "../helpers/mailer" );
+const generateCode = require( "../helpers/generateCode" );
+const Code = require("../models/Code");
 exports.register = async (req,res) => {
   try {
     const {
@@ -162,3 +164,51 @@ exports.findUser = async(req,res)=>{
     res.status(500).json({message:error.message});
   }
 };
+
+exports.sendResetPasswordCode = async(req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email }).select("-password");
+    await Code.findOneAndRemove({ user: user._id });
+    const code = generateCode(5);
+    const savedCode = await new Code({
+      code,
+      user:user._id,
+    }).save();
+    sendResetCode(user.email, user.first_name, code);
+    return res.status(200).json({
+      message: "Email reset code has been sent to your email.",
+    })
+  } catch (error) {
+    res.status(500).json({message:error.message});
+  }
+}
+
+exports.validateResetCode = async(req,res) => {
+  try {
+    const { email, code } = req.body;
+    const user = await User.findOne({ email });
+    const Dbcode = await Code.findOne({ user: user._id });
+    if (Dbcode.code !== code) {
+      return res.status(400).json({
+        message: "Verification code is wrong.",
+      });
+    }
+    return res.status(200).json({ message: "ok" });
+  } catch (error) {
+    res.status(500).json({message:error.message});
+  }
+}
+
+exports.changePassword = async(req, res) => {
+  const { email, password } = req.body;
+
+  const cryptedPassword = await bcrypt.hash(password, 12);
+  await User.findOneAndUpdate(
+    { email },
+    {
+      password: cryptedPassword,
+    }
+  );
+  return res.status(200).json({ message: "ok" });
+}

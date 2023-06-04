@@ -1,7 +1,8 @@
 const express = require('express');
 const {register} = require('../controllers/user');
 const {activateAccount} = require('../controllers/user');
-const {login, sendVerification, findUser} = require('../controllers/user');
+const {login, sendVerification, findUser, sendResetPasswordCode, validateResetCode
+, changePassword} = require('../controllers/user');
 const {auth} = require('../controllers/user');
 const { authUser } = require('../middleware/auth');
 
@@ -17,6 +18,7 @@ router.post('/login', login);
 
 router.post("/sendVerification", authUser, sendVerification);
 router.post("/findUser", findUser);
-
-
+router.post("/sendResetPasswordCode", sendResetPasswordCode);
+router.post("/validateResetCode", validateResetCode);
+router.post("/changePassword", changePassword);
 module.exports = router;
