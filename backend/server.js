@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const{readdirSync} = require('fs');
 const dotenv = require('dotenv');
+const fileUpload = require('express-fileupload');
 dotenv.config();
 
 const app = express();
@@ -10,6 +11,11 @@ app.use(express.json());
 
 let allowed = ['http://localhost:3000', 'some other link'];
 app.use(cors());
+
+//FILE UPLOAD
+app.use(fileUpload({
+    useTempFiles: true
+}))
 
 
 //ROUTES
