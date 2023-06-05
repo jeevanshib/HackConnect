@@ -7,7 +7,7 @@ import "./style.css";
 import CreatePost from "../../components/createPosts";
 import SendVerification from "../../components/home/sendVerification";
 
-export default function Home(){
+export default function Home({setVisible}){
   const {user} = useSelector((state) => ({...state}));
 
 
@@ -21,7 +21,7 @@ export default function Home(){
         user.verified === false &&
       <SendVerification user={user} />
       }
-        <CreatePost user={user}/>
+        <CreatePost user={user} setVisible={setVisible}/>
 
       </div>
       <RightHome />

@@ -3,22 +3,48 @@ import { useRef } from "react";
 import EmojiPickerBackground from "./EmojiPickerBackground";
 import AddToYourPost from "./AddToYourPost";
 import ImagePreview from "./ImagePreview";
+import useClickOutside from "../../helpers/clickOutSide";
+import {createPost} from "../../functions/post"
+import PulseLoader from "react-spinners/PulseLoader";
 
 export default function CreatePostPopup({ user, setVisible }) {
     const [text, setText] = useState("");
     // const textRef = useRef(null);
     const [showPrev, setShowPrev] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [images, setImages] = useState([]);
+    const [background, setBackground] = useState(false);
+    const popup = useRef(null);
+    useClickOutside(popup, () => setVisible(false)
+    );
+    const postSubmit = async () => {
+      if(background){
+        setLoading(true);
+        const response = await createPost(
+          null,
+          background,
+          text,
+          null,
+          user.id,
+          user.token
+        );
+        setLoading(false);
+        setBackground("");
+        setText("");
+        setVisible(false);
+      }
+    }
     
 return (
     
     <div className="bg-blur fixed top-0 left-0 z-10 h-[100%] w-[100%]">
       <div
-        className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-primary shadow-[0_12px_20px_0] shadow-shadow-1 min-h-[220px] w-[500px] rounded-[5px] postBox">
+        className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-primary shadow-[0_12px_20px_0] shadow-shadow-1 min-h-[220px] w-[500px] rounded-[5px] postBox"
+        ref={popup}>
 
         <div className="relative flex items-center justify-center text-[20px] font-bold p-[14px_15px_17px_15px] border-b-[1px_solid] box_header">
           <div
-            className="small_circle"
+            className="small_circle" onClick={() => setVisible(false)}
           >
             <i className="exit_icon"></i>
           </div>
@@ -49,6 +75,7 @@ return (
               setText={setText}
               user={user}
               showPrev={showPrev}
+              setBackground={setBackground}
             />
           </>
         ) : (
@@ -63,7 +90,11 @@ return (
           />
         )}
             <AddToYourPost setShowPrev={setShowPrev}/>
-            <button className="post_submit">Post</button>
+            <button className="post_submit" onClick={()=>{postSubmit()}}
+            disabled={loading}
+          >
+              {loading ? <PulseLoader color="#fff" size={5} /> : "Post"}
+              </button>
 
         </div>
         </div>
