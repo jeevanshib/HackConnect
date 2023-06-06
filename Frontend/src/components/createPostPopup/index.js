@@ -6,12 +6,16 @@ import ImagePreview from "./ImagePreview";
 import useClickOutside from "../../helpers/clickOutSide";
 import {createPost} from "../../functions/post"
 import PulseLoader from "react-spinners/PulseLoader";
+import PostError from "./PostError";
+import dataURItoBlob  from "../../helpers/dataURItoBlob";
 
 export default function CreatePostPopup({ user, setVisible }) {
     const [text, setText] = useState("");
     // const textRef = useRef(null);
     const [showPrev, setShowPrev] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
     const [images, setImages] = useState([]);
     const [background, setBackground] = useState(false);
     const popup = useRef(null);
@@ -29,10 +33,44 @@ export default function CreatePostPopup({ user, setVisible }) {
           user.token
         );
         setLoading(false);
+        
+        if(response==="ok"){
+          setBackground("");
+          setText("");
+          setVisible(false);
+        }
+        else{
+          setError(response);
+        }
+        
+      }else if (images && images.length) {
+        setLoading(true);
+      const postImages = images.map((img) => {
+        return dataURItoBlob(img);
+      });
+      }else if(text){
+        setLoading(true);
+      const response = await createPost(
+        null,
+        null,
+        text,
+        null,
+        user.id,
+        user.token
+      );
+      setLoading(false);
+      if (response === "ok") {
         setBackground("");
         setText("");
         setVisible(false);
+      } else {
+        setError(response);
       }
+
+      }else{
+        console.log("empty post");
+      }
+
     }
     
 return (
@@ -41,7 +79,7 @@ return (
       <div
         className="absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] bg-primary shadow-[0_12px_20px_0] shadow-shadow-1 min-h-[220px] w-[500px] rounded-[5px] postBox"
         ref={popup}>
-
+          {error && <PostError error={error} setError={setError} />}
         <div className="relative flex items-center justify-center text-[20px] font-bold p-[14px_15px_17px_15px] border-b-[1px_solid] box_header">
           <div
             className="small_circle" onClick={() => setVisible(false)}
