@@ -6,8 +6,9 @@ import Stories from "../../components/home/stories";
 import "./style.css";
 import CreatePost from "../../components/createPosts";
 import SendVerification from "../../components/home/sendVerification";
+import Post from "../../components/post";
 
-export default function Home({setVisible}){
+export default function Home({setVisible, posts}){
   const {user} = useSelector((state) => ({...state}));
 
 
@@ -22,7 +23,15 @@ export default function Home({setVisible}){
       <SendVerification user={user} />
       }
         <CreatePost user={user} setVisible={setVisible}/>
-
+        
+        <div className="posts">
+      {
+        posts.map((post) => (
+          <Post key={post._id} post={post} user={user} />
+        ))
+      }
+      </div>
+      
       </div>
       <RightHome />
     </div>

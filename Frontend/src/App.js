@@ -11,18 +11,53 @@ import Activate from "./pages/home/activate";
 import Reset from "./pages/reset";
 import CreatePostPopup from "./components/createPostPopup";
 import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useReducer, useEffect } from "react";
+import { postsReducer } from "./functions/reducers";
+import axios from "axios";
+
 
 function App() {
+
   const [visible,setVisible] = useState(false)
   const {user} = useSelector((state)=>({...state}))
+  const [{ loading, error, posts }, dispatch] = useReducer(postsReducer, {
+    loading: false,
+    posts: [],
+    error: "",
+  });
+  useEffect(() => {
+    getAllPosts();
+  }, [])
+  const getAllPosts = async () => {
+    try {
+      dispatch({
+        type: "POSTS_REQUEST",
+      });
+      const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/getAllPosts`,
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+      dispatch({
+        type: "POSTS_SUCCESS",
+        payload: data,
+      });
+    } catch (error) {
+      dispatch({
+        type: "POSTS_ERROR",
+        payload: error.response.data.message,
+      });
+    }
+  };
+  console.log(posts)
   return (
     <div>
       {visible && <CreatePostPopup user={user} setVisible={setVisible}/>}
       <Routes>
         <Route element={<LoggedInRoutes />}>
         <Route path="/profile" element={<Profile />} exact/>
-        <Route path="/" element={<Home setVisible={setVisible} />} exact />
+        <Route path="/" element={<Home setVisible={setVisible} posts={posts} />} exact />
         <Route path="/activate/:token" element={<Activate />} exact />
         </Route>
         <Route element={<NotLoggedInRoutes />}>
