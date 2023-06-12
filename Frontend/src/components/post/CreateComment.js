@@ -38,7 +38,6 @@ export default function CreateComment({ user }) {
       return;
     }
 
-    
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (event) => {
